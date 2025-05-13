@@ -1,50 +1,81 @@
-## Requirements
+# Requirements
+- **Python**: 3.9.21  
+- **Core Libraries**:
+  - `torch`: 2.5.1 (CUDA 12.4)
+  - `dgl`: 0.9.0  
+  - `torch-geometric`: 2.6.1  
+- **Data Processing**:
+  - `numpy`: 2.0.1  
+  - `pandas`: 2.2.3  
+  - `scipy`: 1.13.1  
+  - `scikit-learn`: 1.6.1  
 
-* python 3.9.21
-* torch 2.5.1
-* cuda 12.4
-* dgl 0.9.0
-* scikit-learn 1.6.1
-* scipy 1.13.1
-* numpy 2.0.1
-* pandas 2.2.3
-* torch-geometric 2.6.1
+---
 
-## Quick start
+# Quick Start
+1. Navigate to the source directory:
+   ```bash
+   cd src/application
+   ```
+2. Run the main script with optional arguments:
+   ```bash
+   python main.py [OPTIONS]
+   ```
 
-1. cd src/application
-2. python `main.py` Options are:
-   1. `--device: the gpu used to train model, default:cuda:0`
-   2. `--hid_dim: the dimension of hidden layers, default:2048`
-   3. `--number: the Postive and Negative ratio, three choice: one--pos:neg=1:1; ten--pos:neg=1:10; all--all unlabelled DTI is treated as neg, default:ten`
-   4. `--feature: the feature used in experiment, three choice: random, luo, default(ours), default:default`
-   5. `--task: the different scenario to test: choice: benchmark->mat_drug_protein.txt, disease->mat_drug_protein_disease.txt, drug->mat_drug_protein_drug.txt, homo_protein_drug->mat_drug_protein_homo_protein_drug.txt,sideeffect->mat_drug_protein_sideeffect.txt, unique->mat_drug_protein_drug_unique.txt default:benchmark`
-   6. `--edge_mask: whether mask some edges in the HN, choice: ''(empty str) drug protein drug,protein disease sideeffect disease,sideeffect drugsim proteinsim drugsim,proteinsim default:''(empty str)'`
+## Command Line Options
+General Options
+| Argument       | Description                | Default  | Choices |
+| -------------- | -------------------------- | -------- | ------- |
+| `--device`     | GPU device ID              | `cuda:0` | -       |
+| `--epochs`     | Number of training epochs  | `5000`   | -       |
+| `--hid_dim`    | Dimension of embeddings    | `2048`   | -       |
+| `--lr`         | Learning rate              | `0.001`  | -       |
+| `--patience`   | Early stopping patience    | `500`    | -       |
+| `--feat_drop`  | Feature dropout rate       | `0.5`    | -       |
+| `--attn_drop`  | Attention dropout rate     | `0.2`    | -       |
+| `--tau`        | Temperature parameter      | `0.5`    | -       |
+| `--cl`         | Regularization coefficient | `20000`  | -       |
+| `--reg_lambda` | Regularization lambda      | `0.5`    | -       |
+
+Experiment Control Options
+| Argument    | Description                         | Default     | Choices                                                                     |
+| ----------- | ----------------------------------- | ----------- | --------------------------------------------------------------------------- |
+| `--number`  | Positive/Negative sample ratio      | `ten`       | `one` (1:1), `ten` (1:10), `all` (all unlabeled as negative)                |
+| `--feature` | Feature type used in the experiment | `default`   | `random`, `luo`, `zeng`                                                     |
+| `--task`    | Experimental scenario               | `benchmark` | `benchmark`, `disease`, `drug`, `homo_protein_drug`, `sideeffect`, `unique` |
 
 
-## Data description
+---
 
-* `drug.txt` : list of drug names.
-* `protein.txt` : list of protein names.
-* `disease.txt` : list of disease names.
-* `se.txt` : list of side effect names.
-* `drug_dict_map.txt` : a complete ID mapping between drug names and DrugBank ID.
-* `protein_dict_map.txt`: a complete ID mapping between protein names and UniProt ID.
-* `mat_drug_se.txt` : Drug-SideEffect association matrix.
-* `mat_protein_protein.txt` : Protein-Protein interaction matrix.
-* `mat_drug_drug.txt` : Drug-Drug interaction matrix.
-* `mat_protein_disease.txt` : Protein-Disease association matrix.
-* `mat_drug_disease.txt` : Drug-Disease association matrix.
-* `mat_protein_drug.txt` : Protein-Drug interaction matrix.
-* `mat_drug_protein.txt` : Drug-Protein interaction matrix.
-* `Similarity_Matrix_Drugs.txt` : Drug similarity scores based on chemical structures of drugs
-* `Similarity_Matrix_Proteins.txt` : Protein similarity scores based on primary sequences of proteins
-* `mat_drug_protein_homo_protein_drug.txt` : Drug-Protein interaction matrix, in which DTIs with similar drugs (i.e., drug chemical structure similarities > 0.6) or similar proteins (i.e., protein sequence similarities > 40%) were removed (see the paper). 
-* `mat_drug_protein_drug.txt` : Drug-Protein interaction matrix, in which DTIs with drugs sharing similar drug interactions (i.e., Jaccard similarities > 0.6) were removed (see the paper). 
-* `mat_drug_protein_sideeffect.txt` : Drug-Protein interaction matrix, in which DTIs with drugs sharing similar side effects (i.e., Jaccard similarities > 0.6) were removed (see the paper). 
-* `mat_drug_protein_disease.txt` : Drug-Protein interaction matrix, in which DTIs with drugs or proteins sharing similar diseases (i.e., Jaccard similarities > 0.6) were removed (see the paper). 
-* `mat_drug_protein_unique.txt` : Drug-Protein interaction matrix, in which known unique and non-unique DTIs were labelled as 3 and 1, respectively, the corresponding unknown ones were labelled as 2 and 0 (see the paper for the definition of unique). 
+# Data Description
 
-These files: drug.txt, protein.txt, disease.txt, se.txt, drug_dict_map, protein_dict_map, mat_drug_se.txt, mat_protein_protein.txt, mat_drug_drug.txt, mat_protein_disease.txt, mat_drug_disease.txt, mat_protein_drug.txt, mat_drug_protein.txt, Similarity_Matrix_Proteins.txt, are extracted from https://github.com/luoyunan/DTINet.
+## File List
 
-These files: mat_drug_protein_homo_protein_drug.txt, mat_drug_protein_drug.txt, mat_drug_protein_sideeffect.txt, mat_drug_protein_disease.txt, mat_drug_protein_unique.txt are extracted from https://github.com/FangpingWan/NeoDTI
+| File Name                       | Description                      |
+|----------------------------------|----------------------------------|
+| `drug.txt`                       | Drug names                       |
+| `protein.txt`                    | Protein names                    |
+| `disease.txt`                    | Disease names                    |
+| `se.txt`                         | Side effect names                |
+| `drug_dict_map.txt`              | DrugBank ID mappings             |
+| `protein_dict_map.txt`           | UniProt ID mappings              |
+
+## Interaction Matrices
+
+| File Name                         | Description                               |
+|------------------------------------|-------------------------------------------|
+| `mat_drug_se.txt`                  | Drug-SideEffect associations              |
+| `mat_protein_protein.txt`          | Protein-Protein interactions              |
+| `mat_drug_drug.txt`                | Drug-Drug interactions                    |
+| `mat_protein_disease.txt`          | Protein-Disease associations              |
+| `mat_drug_disease.txt`             | Drug-Disease associations                 |
+| `mat_protein_drug.txt`             | Protein-Drug interactions                 |
+| `mat_drug_protein.txt`             | Drug-Protein interactions                 |
+
+## Similarity Matrices
+
+| File Name                         | Description                               |
+|------------------------------------|-------------------------------------------|
+| `Similarity_Matrix_Drugs.txt`      | Chemical structure-based drug similarity  |
+| `Similarity_Matrix_Proteins.txt`   | Protein sequence similarity               |
+ 
